@@ -1,0 +1,224 @@
+.join-game-page {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  border: 12px solid #000096;
+  box-sizing: border-box;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: transparent;
+  color: #000096;
+  border: 2px solid #000096;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: #000096;
+  color: #FFFFFF;
+}
+
+.back-button:active {
+  background-color: #000080;
+  border-color: #000080;
+}
+
+.join-game-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.join-title {
+  font-family: "Fredoka One", "Arial Black", "Helvetica", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: #000096;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.game-code-input {
+  padding: 16px;
+  font-size: 1.25rem;
+  border: 2px solid #d1d1d1;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #000096;
+  transition: border-color 0.3s ease;
+  min-height: 56px;
+  box-sizing: border-box;
+  width: 100%;
+  font-family: "Arial", "Helvetica", sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.game-code-input::placeholder {
+  color: #999;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.game-code-input:focus {
+  outline: none;
+  border-color: #000096;
+}
+
+.game-code-input:hover {
+  border-color: #999;
+}
+
+.enter-button {
+  background-color: #000096;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  min-height: 56px;
+  font-family: "Fredoka One", "Arial Black", "Helvetica", sans-serif;
+}
+
+.enter-button:hover:not(:disabled) {
+  background-color: #0000b3;
+}
+
+.enter-button:active:not(:disabled) {
+  background-color: #000080;
+}
+
+.enter-button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 12px;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  border: 1px solid #ff9999;
+  margin-top: 8px;
+}
+
+.success-message {
+  color: #000096;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f0ff;
+  border-radius: 8px;
+  border: 2px solid #000096;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .back-button {
+    top: 15px;
+    left: 15px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .join-game-card {
+    padding: 30px 24px;
+    max-width: 100%;
+  }
+
+  .join-title {
+    font-size: 2rem;
+  }
+
+  .game-code-input {
+    font-size: 1.1rem;
+    min-height: 52px;
+    padding: 14px;
+  }
+
+  .enter-button {
+    font-size: 1.1rem;
+    min-height: 52px;
+    padding: 14px 20px;
+  }
+
+  .success-message {
+    font-size: 1rem;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button {
+    top: 12px;
+    left: 12px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
+  .join-game-card {
+    padding: 24px 20px;
+  }
+
+  .join-title {
+    font-size: 1.75rem;
+  }
+
+  .join-form {
+    gap: 16px;
+  }
+
+  .game-code-input {
+    font-size: 1rem;
+    min-height: 48px;
+    padding: 12px;
+  }
+
+  .enter-button {
+    font-size: 1rem;
+    min-height: 48px;
+    padding: 12px 18px;
+  }
+
+  .success-message {
+    font-size: 0.95rem;
+    padding: 14px;
+  }
+}
+

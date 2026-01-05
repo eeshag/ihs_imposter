@@ -1,0 +1,196 @@
+.game-setup-page {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  border: 12px solid #000096;
+  box-sizing: border-box;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: transparent;
+  color: #000096;
+  border: 2px solid #000096;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: #000096;
+  color: #FFFFFF;
+}
+
+.back-button:active {
+  background-color: #000080;
+  border-color: #000080;
+}
+
+.game-setup-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-title {
+  font-family: "Arial Black", "Helvetica", sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000096;
+  text-align: center;
+  margin: 0 0 30px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000096;
+  text-align: left;
+}
+
+.form-select {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #000096;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #000096;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  min-height: 48px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.form-select:hover {
+  border-color: #0000b3;
+  background-color: #f5f5ff;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #0000b3;
+  background-color: #f5f5ff;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 12px;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  border: 1px solid #ff9999;
+}
+
+.start-game-button {
+  background-color: #000096;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 8px;
+}
+
+.start-game-button:hover {
+  background-color: #0000b3;
+}
+
+.start-game-button:active {
+  background-color: #000080;
+}
+
+@media (max-width: 768px) {
+  .back-button {
+    top: 15px;
+    left: 15px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .game-setup-card {
+    padding: 30px 24px;
+  }
+
+  .setup-title {
+    font-size: 1.75rem;
+  }
+
+  .form-label {
+    font-size: 1rem;
+  }
+
+  .form-select {
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  .start-game-button {
+    font-size: 1.1rem;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button {
+    top: 12px;
+    left: 12px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
+  .game-setup-card {
+    padding: 24px 20px;
+  }
+
+  .setup-title {
+    font-size: 1.5rem;
+  }
+
+  .setup-form {
+    gap: 20px;
+  }
+}
+

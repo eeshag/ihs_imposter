@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# ihs_imposter 🎭
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ihs_imposter is a web-based version of the popular *Imposter* game, customized for **IHS** and designed to work **online**.  
+Unlike most existing Imposter apps that require passing around one physical phone, this version allows **everyone to play on their own device** using a shared game code.
 
-## Available Scripts
+The game keeps the original gameplay but adds a school-themed twist using IHS-related words.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🎮 How the Game Works
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. One player creates a game and becomes the **host**.
+2. The host shares a **game code** (or link) with the group.
+3. Players join on their own phones or computers.
+4. Each player receives:
+   - the **actual word**, or
+   - a **1-word hint** (making them an imposter).
+5. The app randomly selects a player to go first.
+6. Players take turns **clockwise**, describing the word creatively.
+7. Imposters try to blend in without knowing the word.
+8. At the end of the round, players **vote** for who they think the imposter is.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 👥 Players & Roles
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Minimum players:** 3  
+- **Maximum players:** 12  
+- **Number of imposters:** Configurable  
+  - As long as there is **at least one non-imposter**
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🏫 IHS-Themed Content
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The game uses words related to **IHS**, including:
+- Classes
+- Teachers
+- School locations
+- Clubs and sports
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+All word lists are **editable**, making it easy to update or customize.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛠 Tech Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Frontend:** React
+- **Platform:** Web app (URL-based, not app store)
+- **Design:** Responsive for desktop and mobile
+- **Backend:** Flexible / still being developed
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🎯 Why This Project Exists
 
-## Learn More
+Imposter is a fun game that I love playing with my friends at school.  
+However, every app I found only worked **in person**, since you had to pass one phone around.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+I wanted to:
+- Make Imposter playable **online**
+- Give each player their own screen
+- Add a **school-specific twist** using IHS-related words
+- Learn more about **full-stack development**, especially backend systems
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+This project is both a fun game and a way for me to get more real coding experience.
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🌱 Future Features
 
-### Analyzing the Bundle Size
+Planned features include:
+- Supporting **more than 12 players**
+- Player accounts and profiles
+- In-game **chat**
+- Turn **timers**
+- Improved **voting UI**
+- Better animations and transitions
+- More host customization options
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 🚧 Project Status
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This project is currently **in development** and actively evolving.
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## ▶️ Running the Project Locally
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+git clone https://github.com/your-username/ihs_imposter.git
+cd ihs_imposter
+npm install
+npm start
