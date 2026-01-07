@@ -1,0 +1,108 @@
+.starting-player-page {
+	min-height: 100vh;
+	width: 100%;
+	background-color: #FFFFFF;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	position: relative;
+	border: 12px solid #000096;
+	box-sizing: border-box;
+}
+
+.starting-player-card {
+	background-color: #FFFFFF;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+	padding: 40px;
+	width: 100%;
+	max-width: 520px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	text-align: center;
+}
+
+.starting-title {
+	font-family: "Arial Black", "Helvetica", sans-serif;
+	font-size: 2.5rem;
+	font-weight: bold;
+	color: #000096;
+	text-align: center;
+	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.starting-subtitle {
+	font-size: 1.2rem;
+	color: #333333;
+	font-weight: 500;
+	line-height: 1.6;
+	padding: 0 20px;
+}
+
+.end-game-button {
+	background-color: #dc3545;
+	color: #FFFFFF;
+	border: none;
+	border-radius: 8px;
+	padding: 16px 48px;
+	font-size: 1.25rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	min-height: 56px;
+	margin-top: 16px;
+	width: 100%;
+}
+
+.end-game-button:hover {
+	background-color: #c82333;
+}
+
+.end-game-button:active {
+	background-color: #bd2130;
+}
+
+.error-message {
+	color: red;
+	font-size: 0.95rem;
+	text-align: center;
+	padding: 12px;
+	background-color: #ffe6e6;
+	border-radius: 8px;
+	border: 1px solid #ff9999;
+}
+
+@media (max-width: 768px) {
+	.starting-player-card {
+		padding: 30px 24px;
+		max-width: 100%;
+	}
+
+	.starting-title {
+		font-size: 2rem;
+	}
+
+	.starting-subtitle {
+		font-size: 1.1rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.starting-player-card {
+		padding: 24px 20px;
+	}
+
+	.starting-title {
+		font-size: 1.75rem;
+	}
+
+	.starting-subtitle {
+		font-size: 1rem;
+	}
+}
+

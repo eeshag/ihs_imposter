@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createGame } from '../utils/gameStore';
 import './GameSetup.css';
 
 function GameSetup() {
@@ -15,15 +16,16 @@ function GameSetup() {
   const handleStartGame = () => {
     // Validation: number_of_imposters <= total_players - 1
     if (numImposters > totalPlayers - 1) {
-      setError('Error: number of imposters must be at least one less than the number of total players');
+      setError('Number of imposters must be at least one less than total players');
       return;
     }
 
     // Clear error if validation passes
     setError('');
-    
-    // TODO: Navigate to next screen when implemented
-    console.log('Game setup:', { totalPlayers, numImposters });
+
+    // Create game and navigate to host lobby
+    const game = createGame(totalPlayers, numImposters);
+    navigate(`/host/${game.code}`);
   };
 
   const handleTotalPlayersChange = (e) => {
@@ -39,8 +41,8 @@ function GameSetup() {
   };
 
   // Generate options for dropdowns
-  const playerOptions = Array.from({ length: 10 }, (_, i) => i + 3); // 3 to 12
-  const imposterOptions = Array.from({ length: 11 }, (_, i) => i + 1); // 1 to 11
+  const playerOptions = useMemo(() => Array.from({ length: 17 }, (_, i) => i + 4), []);
+  const imposterOptions = useMemo(() => Array.from({ length: Math.max(1, totalPlayers - 1) }, (_, i) => i + 1), [totalPlayers]);
 
   return (
     <div className="game-setup-page">
@@ -48,12 +50,12 @@ function GameSetup() {
         ← Back
       </button>
       <div className="game-setup-card">
-        <h2 className="setup-title">Game Setup</h2>
+        <h2 className="setup-title">Create Game</h2>
         
         <div className="setup-form">
           <div className="form-group">
             <label htmlFor="total-players" className="form-label">
-              Total Players
+              Number of Players
             </label>
             <select
               id="total-players"
@@ -79,11 +81,14 @@ function GameSetup() {
               value={numImposters}
               onChange={handleNumImpostersChange}
             >
-              {imposterOptions.map(num => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
+              {imposterOptions.map(num => {
+                const disabled = num > totalPlayers - 1;
+                return (
+                  <option key={num} value={num} disabled={disabled}>
+                    {num}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -97,7 +102,7 @@ function GameSetup() {
             className="start-game-button"
             onClick={handleStartGame}
           >
-            Start Game
+            Create Game
           </button>
         </div>
       </div>
