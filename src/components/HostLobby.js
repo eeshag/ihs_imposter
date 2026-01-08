@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getGame, startGame, setPlayerNumberForGame, GAME_STATE } from '../utils/gameStore';
+import { getGame, startGame, cancelGame, setPlayerNumberForGame, GAME_STATE } from '../utils/gameStore';
 import './HostLobby.css';
 
 function HostLobby() {
@@ -54,6 +54,16 @@ function HostLobby() {
 		}
 	};
 
+	const handleCancel = () => {
+		if (!code) return;
+		
+		// Cancel the game - this deletes it from storage
+		cancelGame(code);
+		
+		// Navigate back to home
+		navigate('/');
+	};
+
 	const displayCode = useMemo(() => (game?.code || code || '').toString().toUpperCase(), [game, code]);
 
 	if (!game) {
@@ -91,6 +101,13 @@ function HostLobby() {
 					disabled={!isFull}
 				>
 					Start Game
+				</button>
+
+				<button
+					className="cancel-button"
+					onClick={handleCancel}
+				>
+					Cancel Game
 				</button>
 			</div>
 		</div>

@@ -78,23 +78,26 @@ function JoinGame() {
     }
   };
 
-  // Poll for game state when successfully joined
-  useEffect(() => {
-    if (status === 'success' && gameCode && playerNumber) {
-      const interval = setInterval(() => {
-        const game = getGame(gameCode.toUpperCase());
-        if (game) {
-          // If game has started, navigate to role reveal
-          if (game.state === GAME_STATE.ROLE_REVEAL || game.state === GAME_STATE.ALL_READY) {
-            navigate(`/role-reveal/${gameCode.toUpperCase()}/${playerNumber}`);
-          } else if (game.state === GAME_STATE.START_PLAYER_SELECTED) {
-            navigate(`/starting-player/${gameCode.toUpperCase()}/${playerNumber}`);
-          }
-        }
-      }, 500);
-      return () => clearInterval(interval);
-    }
-  }, [status, gameCode, playerNumber, navigate]);
+	// Poll for game state when successfully joined
+	useEffect(() => {
+		if (status === 'success' && gameCode && playerNumber) {
+			const interval = setInterval(() => {
+				const game = getGame(gameCode.toUpperCase());
+				if (!game) {
+					// Game was cancelled - navigate back to home
+					navigate('/');
+					return;
+				}
+				// If game has started, navigate to role reveal
+				if (game.state === GAME_STATE.ROLE_REVEAL || game.state === GAME_STATE.ALL_READY) {
+					navigate(`/role-reveal/${gameCode.toUpperCase()}/${playerNumber}`);
+				} else if (game.state === GAME_STATE.START_PLAYER_SELECTED) {
+					navigate(`/starting-player/${gameCode.toUpperCase()}/${playerNumber}`);
+				}
+			}, 500);
+			return () => clearInterval(interval);
+		}
+	}, [status, gameCode, playerNumber, navigate]);
 
   // Success screen (waiting for host)
   if (status === 'success') {

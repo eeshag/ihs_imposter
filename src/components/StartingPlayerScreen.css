@@ -44,6 +44,58 @@
 	padding: 0 20px;
 }
 
+.selection-progress {
+	font-size: 1.1rem;
+	color: #000096;
+	font-weight: 700;
+	background-color: #f0f0ff;
+	border: 2px solid #000096;
+	border-radius: 10px;
+	padding: 10px 16px;
+	margin-top: 8px;
+}
+
+.host-buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 100%;
+	margin-top: 16px;
+}
+
+.next-button {
+	background-color: #000096;
+	color: #FFFFFF;
+	border: none;
+	border-radius: 8px;
+	padding: 16px 48px;
+	font-size: 1.25rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	min-height: 56px;
+	width: 100%;
+}
+
+.next-button:hover {
+	background-color: #0000b3;
+}
+
+.next-button:active {
+	background-color: #000080;
+}
+
+.all-selected-message {
+	font-size: 1.1rem;
+	color: #28a745;
+	font-weight: 600;
+	text-align: center;
+	padding: 12px;
+	background-color: #d4edda;
+	border: 2px solid #28a745;
+	border-radius: 8px;
+}
+
 .end-game-button {
 	background-color: #dc3545;
 	color: #FFFFFF;

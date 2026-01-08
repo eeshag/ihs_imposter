@@ -95,6 +95,7 @@ export function createGame(totalPlayers, numImposters) {
 	 	 word: null,
 	 	 hint: null,
 	 	 startingPlayer: null,
+	 	 selectedPlayers: [], // Track which players have been selected
 	 };
 	 return saveGame(game);
 }
@@ -215,6 +216,33 @@ export function selectStartingPlayer(code) {
 	 	 ...g,
 	 	 state: GAME_STATE.START_PLAYER_SELECTED,
 	 	 startingPlayer,
+	 	 selectedPlayers: [startingPlayer], // Initialize with first selected player
+	 }));
+}
+
+// Select next random player from remaining players
+export function selectNextPlayer(code) {
+	 const game = getGame(code);
+	 if (!game || game.state !== GAME_STATE.START_PLAYER_SELECTED) {
+	 	 return game;
+	 }
+	 
+	 const selectedPlayers = game.selectedPlayers || [];
+	 const allPlayers = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
+	 const remainingPlayers = allPlayers.filter(p => !selectedPlayers.includes(p));
+	 
+	 // If all players have been selected, return current game
+	 if (remainingPlayers.length === 0) {
+	 	 return game;
+	 }
+	 
+	 // Randomly select from remaining players
+	 const nextPlayer = remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)];
+	 
+	 return updateGame(code, g => ({
+	 	 ...g,
+	 	 startingPlayer: nextPlayer,
+	 	 selectedPlayers: [...selectedPlayers, nextPlayer],
 	 }));
 }
 
@@ -271,6 +299,17 @@ export function endGame(code) {
 	 	 ...g,
 	 	 state: GAME_STATE.ENDED,
 	 }));
+}
+
+// Cancel the game - deletes it from storage so all players are kicked back to home
+export function cancelGame(code) {
+	 const games = readGames();
+	 if (games[code]) {
+	 	 delete games[code];
+	 	 writeGames(games);
+	 	 return true;
+	 }
+	 return false;
 }
 
 

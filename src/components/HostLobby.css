@@ -126,6 +126,31 @@
 	cursor: not-allowed;
 }
 
+.cancel-button {
+	background-color: #FFFFFF;
+	color: #cc0000;
+	border: 2px solid #cc0000;
+	border-radius: 8px;
+	padding: 12px 24px;
+	font-size: 1rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease, color 0.3s ease;
+	width: 100%;
+	min-height: 48px;
+	margin-top: 12px;
+}
+
+.cancel-button:hover {
+	background-color: #cc0000;
+	color: #FFFFFF;
+}
+
+.cancel-button:active {
+	background-color: #990000;
+	border-color: #990000;
+}
+
 .error-message {
 	color: red;
 	font-size: 0.95rem;
