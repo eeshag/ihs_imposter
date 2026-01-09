@@ -70,6 +70,15 @@
 	margin-top: 8px;
 }
 
+.game-code-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	width: 100%;
+	flex-wrap: wrap;
+}
+
 .game-code-value {
 	font-family: "Fredoka One", "Arial Black", "Helvetica", sans-serif;
 	font-size: 3rem;
@@ -78,6 +87,33 @@
 	letter-spacing: 0.25em;
 	text-align: center;
 	padding: 8px 0;
+}
+
+.copy-button {
+	background-color: #000096;
+	color: #FFFFFF;
+	border: 2px solid #000096;
+	border-radius: 8px;
+	padding: 10px 16px;
+	font-size: 1.5rem;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+	min-width: 56px;
+	height: 56px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.copy-button:hover {
+	background-color: #0000b3;
+	transform: scale(1.05);
+}
+
+.copy-button:active {
+	background-color: #000080;
+	transform: scale(0.98);
 }
 
 .code-subtext {
@@ -174,9 +210,20 @@
 		max-width: 100%;
 	}
 
+	.game-code-container {
+		gap: 10px;
+	}
+
 	.game-code-value {
 		font-size: 2.5rem;
 		letter-spacing: 0.2em;
+	}
+
+	.copy-button {
+		font-size: 1.3rem;
+		min-width: 50px;
+		height: 50px;
+		padding: 8px 14px;
 	}
 }
 
@@ -192,9 +239,20 @@
 		padding: 24px 20px;
 	}
 
+	.game-code-container {
+		gap: 8px;
+	}
+
 	.game-code-value {
 		font-size: 2.2rem;
 		letter-spacing: 0.18em;
+	}
+
+	.copy-button {
+		font-size: 1.2rem;
+		min-width: 44px;
+		height: 44px;
+		padding: 6px 12px;
 	}
 }
 

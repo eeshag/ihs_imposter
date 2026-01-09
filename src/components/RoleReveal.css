@@ -11,6 +11,31 @@
 	box-sizing: border-box;
 }
 
+.corner-end-game-button {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background-color: #dc3545;
+	color: #FFFFFF;
+	border: none;
+	border-radius: 8px;
+	padding: 10px 20px;
+	font-size: 1rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	z-index: 10;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.corner-end-game-button:hover {
+	background-color: #c82333;
+}
+
+.corner-end-game-button:active {
+	background-color: #bd2130;
+}
+
 .role-reveal-card {
 	background-color: #FFFFFF;
 	border-radius: 12px;
@@ -121,6 +146,13 @@
 }
 
 @media (max-width: 768px) {
+	.corner-end-game-button {
+		top: 15px;
+		right: 15px;
+		padding: 8px 16px;
+		font-size: 0.9rem;
+	}
+
 	.role-reveal-card {
 		padding: 30px 24px;
 		max-width: 100%;
@@ -140,6 +172,13 @@
 }
 
 @media (max-width: 480px) {
+	.corner-end-game-button {
+		top: 12px;
+		right: 12px;
+		padding: 7px 14px;
+		font-size: 0.85rem;
+	}
+
 	.role-reveal-card {
 		padding: 24px 20px;
 	}

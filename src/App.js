@@ -7,6 +7,8 @@ import JoinGame from './components/JoinGame';
 import HostLobby from './components/HostLobby';
 import RoleReveal from './components/RoleReveal';
 import StartingPlayerScreen from './components/StartingPlayerScreen';
+import VotingScreen from './components/VotingScreen';
+import VotingResultsScreen from './components/VotingResultsScreen';
 import './App.css';
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="/host/:code" element={<HostLobby />} />
         <Route path="/role-reveal/:code/:playerNumber" element={<RoleReveal />} />
         <Route path="/starting-player/:code/:playerNumber" element={<StartingPlayerScreen />} />
+        <Route path="/voting/:code/:playerNumber" element={<VotingScreen />} />
+        <Route path="/voting-results/:code/:playerNumber" element={<VotingResultsScreen />} />
       </Routes>
     </div>
   );

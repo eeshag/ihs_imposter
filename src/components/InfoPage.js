@@ -21,7 +21,7 @@ function InfoPage() {
           <h2 className="section-title">🎮 How to Play</h2>
           <ol className="info-list">
             <li>One player creates a game and becomes the <strong>host</strong>.</li>
-            <li>The host shares a <strong>game code</strong> (or link) with the group.</li>
+            <li>The host shares a <strong>game code</strong> with the group.</li>
             <li>Players join on their own phones or computers.</li>
             <li>Each player receives:
               <ul className="info-sublist">
@@ -29,8 +29,7 @@ function InfoPage() {
                 <li>a <strong>1-word hint</strong> (making them an imposter).</li>
               </ul>
             </li>
-            <li>The app randomly selects a player to go first.</li>
-            <li>Players take turns <strong>clockwise</strong>, describing the word creatively.</li>
+            <li>The app randomly selects players to go until all players have been chosen.</li>
             <li>Imposters try to blend in without knowing the word.</li>
             <li>At the end of the round, players <strong>vote</strong> for who they think the imposter is.</li>
           </ol>

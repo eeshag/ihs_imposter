@@ -8,6 +8,8 @@ export const GAME_STATE = {
 	ALL_READY: 'ALL_READY',
 	START_PLAYER_SELECTED: 'START_PLAYER_SELECTED',
 	GAME_IN_PROGRESS: 'GAME_IN_PROGRESS',
+	VOTING: 'VOTING',
+	VOTING_RESULTS: 'VOTING_RESULTS',
 	ENDED: 'ENDED',
 };
 
@@ -21,6 +23,11 @@ export const PLAYER_ROLE = {
 const WORD_HINT_PAIRS = [
 	{ word: 'math club', hint: 'nailong' },
 	{ word: 'ihs pjs', hint: 'comfy' },
+	{ word: 'track and field', hint: 'spring' },
+	{ word: 'hello rally', hint: 'hi!' },
+	{ word: 'double accel', hint: 'hard' },
+	{ word: 'ihs quarter zip', hint: 'performative' },
+	{ word: 'blue crew', hint: 'friday' },
 ];
 
 function readGames() {
@@ -92,11 +99,14 @@ export function createGame(totalPlayers, numImposters) {
 	 	 createdAt: Date.now(),
 	 	 state: GAME_STATE.WAITING_FOR_START,
 	 	 players: { 1: { role: null, ready: false } }, // Initialize host (player 1)
-	 	 word: null,
-	 	 hint: null,
-	 	 startingPlayer: null,
-	 	 selectedPlayers: [], // Track which players have been selected
-	 };
+		word: null,
+		hint: null,
+		startingPlayer: null,
+		selectedPlayers: [], // Track which players have been selected
+		votes: {}, // Track votes: { playerNumber: [array of voted player numbers] }
+		voteCount: 0, // Number of players who have submitted votes
+		impostersRevealed: false, // Whether imposters have been revealed to all players
+	};
 	 return saveGame(game);
 }
 
@@ -310,6 +320,105 @@ export function cancelGame(code) {
 	 	 return true;
 	 }
 	 return false;
+}
+
+// Start voting phase - transition from game in progress to voting
+// Idempotent: safe to call multiple times, won't reset votes if already in voting
+export function startVoting(code) {
+	 const game = getGame(code);
+	 if (!game) {
+	 	 return null;
+	 }
+	 
+	 // If already in voting state, don't reset votes
+	 if (game.state === GAME_STATE.VOTING || game.state === GAME_STATE.VOTING_RESULTS) {
+	 	 return game;
+	 }
+	 
+	 return updateGame(code, g => ({
+	 	 ...g,
+	 	 state: GAME_STATE.VOTING,
+	 	 votes: g.votes || {},
+	 	 voteCount: g.voteCount || 0,
+	 }));
+}
+
+// Submit a vote from a player
+export function submitVote(code, playerNumber, votedPlayers) {
+	 const game = getGame(code);
+	 if (!game) {
+	 	 return null;
+	 }
+	 if (game.state !== GAME_STATE.VOTING) {
+	 	 return game;
+	 }
+	 if (!votedPlayers || votedPlayers.length !== game.numImposters) {
+	 	 return game; // Invalid vote
+	 }
+	 
+	 return updateGame(code, g => {
+	 	 const updated = { ...g };
+	 	 if (!updated.votes) {
+	 	 	 updated.votes = {};
+	 	 }
+	 	 if (!updated.voteCount) {
+	 	 	 updated.voteCount = 0;
+	 	 }
+	 	 
+	 	 // Only count if this player hasn't voted yet
+	 	 if (!updated.votes[playerNumber]) {
+	 	 	 updated.voteCount += 1;
+	 	 }
+	 	 
+	 	 updated.votes[playerNumber] = [...votedPlayers];
+	 	 
+	 	 // Check if all players have voted
+	 	 if (updated.voteCount >= updated.totalPlayers) {
+	 	 	 updated.state = GAME_STATE.VOTING_RESULTS;
+	 	 }
+	 	 
+	 	 return updated;
+	 });
+}
+
+// Get voting results - returns object with player numbers as keys and vote counts as values
+export function getVotingResults(code) {
+	 const game = getGame(code);
+	 if (!game || !game.votes) {
+	 	 return {};
+	 }
+	 
+	 const results = {};
+	 const allPlayerNumbers = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
+	 
+	 // Initialize all players with 0 votes
+	 allPlayerNumbers.forEach(num => {
+	 	 results[num] = 0;
+	 });
+	 
+	 // Count votes
+	 Object.values(game.votes).forEach(votedPlayers => {
+	 	 votedPlayers.forEach(playerNum => {
+	 	 	 if (results.hasOwnProperty(playerNum)) {
+	 	 	 	 results[playerNum] += 1;
+	 	 	 }
+	 	 });
+	 });
+	 
+	 return results;
+}
+
+// Reveal imposters (host action) - sets flag so all players see the reveal
+export function revealImposters(code) {
+	 const game = getGame(code);
+	 if (!game) {
+	 	 return null;
+	 }
+	 
+	 return updateGame(code, g => ({
+	 	 ...g,
+	 	 impostersRevealed: true,
+	 }));
 }
 
 

@@ -7,6 +7,7 @@ function HostLobby() {
 	const navigate = useNavigate();
 	const { code } = useParams();
 	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [copied, setCopied] = useState(false);
 
 	// Store host player number (always 1)
 	useEffect(() => {
@@ -66,6 +67,37 @@ function HostLobby() {
 
 	const displayCode = useMemo(() => (game?.code || code || '').toString().toUpperCase(), [game, code]);
 
+	const handleCopyCode = async () => {
+		const codeToCopy = displayCode;
+		if (!codeToCopy) return;
+
+		try {
+			await navigator.clipboard.writeText(codeToCopy);
+			setCopied(true);
+			setTimeout(() => {
+				setCopied(false);
+			}, 2000);
+		} catch (err) {
+			// Fallback for older browsers
+			const textArea = document.createElement('textarea');
+			textArea.value = codeToCopy;
+			textArea.style.position = 'fixed';
+			textArea.style.opacity = '0';
+			document.body.appendChild(textArea);
+			textArea.select();
+			try {
+				document.execCommand('copy');
+				setCopied(true);
+				setTimeout(() => {
+					setCopied(false);
+				}, 2000);
+			} catch (e) {
+				console.error('Failed to copy code', e);
+			}
+			document.body.removeChild(textArea);
+		}
+	};
+
 	if (!game) {
 		return (
 			<div className="host-lobby-page">
@@ -88,7 +120,16 @@ function HostLobby() {
 			<div className="host-lobby-card">
 				<h2 className="lobby-title">Host Lobby</h2>
 				<div className="game-code-label">Game Code</div>
-				<div className="game-code-value">{displayCode}</div>
+				<div className="game-code-container">
+					<div className="game-code-value">{displayCode}</div>
+					<button
+						className="copy-button"
+						onClick={handleCopyCode}
+						title={copied ? "Copied!" : "Copy code"}
+					>
+						{copied ? "✓" : "📋"}
+					</button>
+				</div>
 				<div className="code-subtext">Share this code with players to join</div>
 
 				<div className="players-count">

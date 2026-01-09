@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getGame, getPlayerRole, markPlayerReady, selectStartingPlayer, GAME_STATE, PLAYER_ROLE } from '../utils/gameStore';
+import { getGame, getPlayerRole, markPlayerReady, selectStartingPlayer, GAME_STATE, PLAYER_ROLE, endGame } from '../utils/gameStore';
 import './RoleReveal.css';
 
 function RoleReveal() {
@@ -59,6 +59,7 @@ function RoleReveal() {
 
 	const playerRole = getPlayerRole(code, parsedPlayerNumber);
 	const isImposter = playerRole === PLAYER_ROLE.IMPOSTER;
+	const isHost = parsedPlayerNumber === 1;
 
 	const handleOK = () => {
 		if (hasPressedOK) return; // Prevent double-clicking
@@ -75,8 +76,24 @@ function RoleReveal() {
 		}, 100);
 	};
 
+	const handleEndGame = () => {
+		if (code) {
+			endGame(code);
+			navigate('/');
+		}
+	};
+
 	return (
 		<div className="role-reveal-page">
+			{isHost && (
+				<button
+					className="corner-end-game-button"
+					onClick={handleEndGame}
+					title="End Game"
+				>
+					End Game
+				</button>
+			)}
 			<div className="role-reveal-card">
 				{isImposter ? (
 					<>

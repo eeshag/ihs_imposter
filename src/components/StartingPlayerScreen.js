@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getGame, GAME_STATE, endGame, selectNextPlayer } from '../utils/gameStore';
+import { getGame, GAME_STATE, endGame, selectNextPlayer, startVoting } from '../utils/gameStore';
 import './StartingPlayerScreen.css';
 
 function StartingPlayerScreen() {
@@ -21,7 +21,10 @@ function StartingPlayerScreen() {
 				// Check if game has ended
 				if (latest.state === GAME_STATE.ENDED) {
 					navigate('/');
+					return;
 				}
+				
+				// Don't auto-navigate to voting - let each player choose when to vote
 			} else {
 				// Game was deleted/ended
 				navigate('/');
@@ -61,8 +64,26 @@ function StartingPlayerScreen() {
 		}
 	};
 
+	const handleVote = () => {
+		if (code && allPlayersSelected) {
+			// Transition game to voting state (idempotent - safe to call multiple times)
+			startVoting(code);
+			// Navigate only this individual player to voting screen
+			navigate(`/voting/${code}/${parsedPlayerNumber}`);
+		}
+	};
+
 	return (
 		<div className="starting-player-page">
+			{isHost && (
+				<button
+					className="corner-end-game-button"
+					onClick={handleEndGame}
+					title="End Game"
+				>
+					End Game
+				</button>
+			)}
 			<div className="starting-player-card">
 				<h2 className="starting-title">
 					Player {startingPlayerNumber} {currentSelectionIndex === 1 ? 'Starts!' : 'Goes Next!'}
@@ -90,13 +111,15 @@ function StartingPlayerScreen() {
 								All players have been selected!
 							</div>
 						)}
-						<button
-							className="end-game-button"
-							onClick={handleEndGame}
-						>
-							End Game
-						</button>
 					</div>
+				)}
+				{allPlayersSelected && (
+					<button
+						className="vote-button"
+						onClick={handleVote}
+					>
+						Vote
+					</button>
 				)}
 			</div>
 		</div>
