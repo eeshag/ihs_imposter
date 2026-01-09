@@ -53,7 +53,7 @@ function LandingPage() {
       </div>
       <div className="landing-bottom-right">
         <img 
-          src="/Blue_1.jpg" 
+          src="/blue_1.jpg" 
           alt="Blue Crew Character" 
           className="bottom-right-image"
         />

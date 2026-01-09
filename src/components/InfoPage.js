@@ -70,7 +70,7 @@ function InfoPage() {
         
         <div className="info-image-container">
           <img 
-            src="/Blue_1.jpg" 
+            src="/blue_1.jpg" 
             alt="Blue Crew Imposter Character" 
             className="info-image"
           />
