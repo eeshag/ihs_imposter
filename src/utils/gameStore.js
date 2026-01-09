@@ -1,5 +1,5 @@
 // API-backed game store to coordinate host/join flows across devices
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ihs-imposter-backend.onrender.com/api';
 
 // Game states
 export const GAME_STATE = {
