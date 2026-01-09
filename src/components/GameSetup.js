@@ -13,7 +13,7 @@ function GameSetup() {
     navigate('/');
   };
 
-  const handleStartGame = () => {
+  const handleStartGame = async () => {
     // Validation: number_of_imposters <= total_players - 1
     if (numImposters > totalPlayers - 1) {
       setError('Number of imposters must be at least one less than total players');
@@ -23,9 +23,17 @@ function GameSetup() {
     // Clear error if validation passes
     setError('');
 
-    // Create game and navigate to host lobby
-    const game = createGame(totalPlayers, numImposters);
-    navigate(`/host/${game.code}`);
+    try {
+      // Create game and navigate to host lobby
+      const game = await createGame(totalPlayers, numImposters);
+      if (game) {
+        navigate(`/host/${game.code}`);
+      } else {
+        setError('Failed to create game. Please try again.');
+      }
+    } catch (error) {
+      setError('Failed to create game. Please try again.');
+    }
   };
 
   const handleTotalPlayersChange = (e) => {

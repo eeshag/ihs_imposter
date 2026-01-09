@@ -1,5 +1,5 @@
-// Simple localStorage-backed game store to coordinate host/join flows on the client
-const STORAGE_KEY = 'ihs_games';
+// API-backed game store to coordinate host/join flows across devices
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 // Game states
 export const GAME_STATE = {
@@ -30,110 +30,74 @@ const WORD_HINT_PAIRS = [
 	{ word: 'blue crew', hint: 'friday' },
 ];
 
-function readGames() {
-	 try {
-	 	 const raw = localStorage.getItem(STORAGE_KEY);
-	 	 if (!raw) return {};
-	 	 const parsed = JSON.parse(raw);
-	 	 return typeof parsed === 'object' && parsed !== null ? parsed : {};
-	 } catch (_) {
-	 	 return {};
-	 }
+// Helper function for API calls
+async function apiCall(endpoint, options = {}) {
+	try {
+		const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+			headers: {
+				'Content-Type': 'application/json',
+				...options.headers,
+			},
+			...options,
+		});
+		
+		if (!response.ok) {
+			const error = await response.json().catch(() => ({ error: 'Request failed' }));
+			throw new Error(error.error || 'Request failed');
+		}
+		
+		return await response.json();
+	} catch (error) {
+		console.error('API call failed:', error);
+		throw error;
+	}
 }
 
-function writeGames(games) {
-	 localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
-}
-
-export function getGame(code) {
-	 const games = readGames();
-	 return games[code] || null;
+export async function getGame(code) {
+	try {
+		const game = await apiCall(`/game/${code}`);
+		return game;
+	} catch (error) {
+		console.error('Failed to get game:', error);
+		return null;
+	}
 }
 
 export function getAllGames() {
-	 return readGames();
+	// Not needed for API-based implementation
+	return {};
 }
 
-export function saveGame(game) {
-	 const games = readGames();
-	 games[game.code] = game;
-	 writeGames(games);
-	 return game;
+export async function createGame(totalPlayers, numImposters) {
+	try {
+		const game = await apiCall('/game/create', {
+			method: 'POST',
+			body: JSON.stringify({ totalPlayers, numImposters }),
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to create game:', error);
+		throw error;
+	}
 }
 
-export function updateGame(code, updater) {
-	 const games = readGames();
-	 const existing = games[code];
-	 if (!existing) return null;
-	 const updated = updater({ ...existing });
-	 games[code] = updated;
-	 writeGames(games);
-	 return updated;
-}
-
-export function generateGameCode() {
-	 const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // avoid ambiguous chars
-	 const games = readGames();
-	 let attempt = 0;
-	 while (attempt < 10000) {
-	 	 let code = '';
-	 	 for (let i = 0; i < 6; i += 1) {
-	 	 	 code += alphabet[Math.floor(Math.random() * alphabet.length)];
-	 	 }
-	 	 if (!games[code]) {
-	 	 	 return code;
-	 	 }
-	 	 attempt += 1;
-	 }
-	 // Fallback (extremely unlikely to hit)
-	 return String(Date.now()).slice(-6);
-}
-
-export function createGame(totalPlayers, numImposters) {
-	 const code = generateGameCode();
-	 const game = {
-	 	 code,
-	 	 totalPlayers,
-	 	 numImposters,
-	 	 joinedCount: 1, // host counts as first player
-	 	 createdAt: Date.now(),
-	 	 state: GAME_STATE.WAITING_FOR_START,
-	 	 players: { 1: { role: null, ready: false } }, // Initialize host (player 1)
-		word: null,
-		hint: null,
-		startingPlayer: null,
-		selectedPlayers: [], // Track which players have been selected
-		votes: {}, // Track votes: { playerNumber: [array of voted player numbers] }
-		voteCount: 0, // Number of players who have submitted votes
-		impostersRevealed: false, // Whether imposters have been revealed to all players
-	};
-	 return saveGame(game);
-}
-
-export function tryJoinGame(code) {
-	 const game = getGame(code);
-	 if (!game) {
-	 	 return { ok: false, reason: 'invalid' };
-	 }
-	 if (game.joinedCount >= game.totalPlayers) {
-	 	 return { ok: false, reason: 'full' };
-	 }
-	 const assignedPlayerNumber = game.joinedCount + 1;
-	 const updated = updateGame(code, g => {
-	 	 const next = { ...g };
-	 	 if (next.joinedCount < next.totalPlayers) {
-	 	 	 next.joinedCount += 1;
-	 	 }
-	 	 // Initialize player entry if not exists
-	 	 if (!next.players) {
-	 	 	 next.players = {};
-	 	 }
-	 	 if (!next.players[assignedPlayerNumber]) {
-	 	 	 next.players[assignedPlayerNumber] = { role: null, ready: false };
-	 	 }
-	 	 return next;
-	 });
-	 return { ok: true, game: updated, playerNumber: assignedPlayerNumber };
+export async function tryJoinGame(code) {
+	try {
+		const result = await apiCall(`/game/${code}/join`, {
+			method: 'POST',
+		});
+		return result;
+	} catch (error) {
+		console.error('Failed to join game:', error);
+		// Return error response format
+		if (error.message.includes('not found') || error.message.includes('404')) {
+			return { ok: false, reason: 'invalid' };
+		}
+		if (error.message.includes('full')) {
+			return { ok: false, reason: 'full' };
+		}
+		return { ok: false, reason: 'invalid' };
+	}
 }
 
 // Select a random word and hint pair
@@ -166,112 +130,74 @@ function assignRoles(totalPlayers, numImposters) {
 }
 
 // Start the game: assign roles and select word/hint
-export function startGame(code) {
-	 const game = getGame(code);
-	 if (!game) {
-	 	 return null;
-	 }
-	 if (game.state !== GAME_STATE.WAITING_FOR_START) {
-	 	 return game; // Already started
-	 }
-	 if (game.joinedCount < game.totalPlayers) {
-	 	 return game; // Not enough players
-	 }
-	 
-	 const { word, hint } = selectWordAndHint();
-	 const roles = assignRoles(game.totalPlayers, game.numImposters);
-	 
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 state: GAME_STATE.ROLE_REVEAL,
-	 	 word,
-	 	 hint,
-	 	 players: roles,
-	 }));
+export async function startGame(code) {
+	try {
+		const game = await apiCall(`/game/${code}/start`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to start game:', error);
+		return null;
+	}
 }
 
 // Mark a player as ready
-export function markPlayerReady(code, playerNumber) {
-	 return updateGame(code, g => {
-	 	 if (!g.players || !g.players[playerNumber]) {
-	 	 	 return g;
-	 	 }
-	 	 const updated = { ...g };
-	 	 updated.players = { ...g.players };
-	 	 updated.players[playerNumber] = {
-	 	 	 ...g.players[playerNumber],
-	 	 	 ready: true,
-	 	 };
-	 	 
-	 	 // Check if all players are ready
-	 	 const allReady = Object.values(updated.players).every(p => p.ready);
-	 	 if (allReady && updated.state === GAME_STATE.ROLE_REVEAL) {
-	 	 	 updated.state = GAME_STATE.ALL_READY;
-	 	 }
-	 	 
-	 	 return updated;
-	 });
+export async function markPlayerReady(code, playerNumber) {
+	try {
+		const game = await apiCall(`/game/${code}/ready`, {
+			method: 'POST',
+			body: JSON.stringify({ playerNumber }),
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to mark player ready:', error);
+		return null;
+	}
 }
 
 // Select starting player and transition to next state
-export function selectStartingPlayer(code) {
-	 const game = getGame(code);
-	 if (!game || game.state !== GAME_STATE.ALL_READY) {
-	 	 return game;
-	 }
-	 
-	 const startingPlayer = Math.floor(Math.random() * game.totalPlayers) + 1;
-	 
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 state: GAME_STATE.START_PLAYER_SELECTED,
-	 	 startingPlayer,
-	 	 selectedPlayers: [startingPlayer], // Initialize with first selected player
-	 }));
+export async function selectStartingPlayer(code) {
+	try {
+		const game = await apiCall(`/game/${code}/select-starting-player`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to select starting player:', error);
+		return null;
+	}
 }
 
 // Select next random player from remaining players
-export function selectNextPlayer(code) {
-	 const game = getGame(code);
-	 if (!game || game.state !== GAME_STATE.START_PLAYER_SELECTED) {
-	 	 return game;
-	 }
-	 
-	 const selectedPlayers = game.selectedPlayers || [];
-	 const allPlayers = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
-	 const remainingPlayers = allPlayers.filter(p => !selectedPlayers.includes(p));
-	 
-	 // If all players have been selected, return current game
-	 if (remainingPlayers.length === 0) {
-	 	 return game;
-	 }
-	 
-	 // Randomly select from remaining players
-	 const nextPlayer = remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)];
-	 
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 startingPlayer: nextPlayer,
-	 	 selectedPlayers: [...selectedPlayers, nextPlayer],
-	 }));
+export async function selectNextPlayer(code) {
+	try {
+		const game = await apiCall(`/game/${code}/select-next-player`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to select next player:', error);
+		return null;
+	}
 }
 
 // Get player's role
-export function getPlayerRole(code, playerNumber) {
-	 const game = getGame(code);
-	 if (!game || !game.players || !game.players[playerNumber]) {
-	 	 return null;
-	 }
-	 return game.players[playerNumber].role;
+export async function getPlayerRole(code, playerNumber) {
+	const game = await getGame(code);
+	if (!game || !game.players || !game.players[playerNumber]) {
+		return null;
+	}
+	return game.players[playerNumber].role;
 }
 
 // Check if player is ready
-export function isPlayerReady(code, playerNumber) {
-	 const game = getGame(code);
-	 if (!game || !game.players || !game.players[playerNumber]) {
-	 	 return false;
-	 }
-	 return game.players[playerNumber].ready;
+export async function isPlayerReady(code, playerNumber) {
+	const game = await getGame(code);
+	if (!game || !game.players || !game.players[playerNumber]) {
+		return false;
+	}
+	return game.players[playerNumber].ready;
 }
 
 // Store player number for a game code (in sessionStorage)
@@ -304,121 +230,83 @@ export function getPlayerNumberForGame(code) {
 }
 
 // End the game - marks it as ended so all players can navigate home
-export function endGame(code) {
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 state: GAME_STATE.ENDED,
-	 }));
+export async function endGame(code) {
+	try {
+		const game = await apiCall(`/game/${code}/end`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to end game:', error);
+		return null;
+	}
 }
 
-// Cancel the game - deletes it from storage so all players are kicked back to home
-export function cancelGame(code) {
-	 const games = readGames();
-	 if (games[code]) {
-	 	 delete games[code];
-	 	 writeGames(games);
-	 	 return true;
-	 }
-	 return false;
-}
-
-// Start voting phase - transition from game in progress to voting
-// Idempotent: safe to call multiple times, won't reset votes if already in voting
-export function startVoting(code) {
-	 const game = getGame(code);
-	 if (!game) {
-	 	 return null;
-	 }
-	 
-	 // If already in voting state, don't reset votes
-	 if (game.state === GAME_STATE.VOTING || game.state === GAME_STATE.VOTING_RESULTS) {
-	 	 return game;
-	 }
-	 
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 state: GAME_STATE.VOTING,
-	 	 votes: g.votes || {},
-	 	 voteCount: g.voteCount || 0,
-	 }));
+// Start voting phase
+export async function startVoting(code) {
+	try {
+		const game = await apiCall(`/game/${code}/start-voting`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to start voting:', error);
+		return null;
+	}
 }
 
 // Submit a vote from a player
-export function submitVote(code, playerNumber, votedPlayers) {
-	 const game = getGame(code);
-	 if (!game) {
-	 	 return null;
-	 }
-	 if (game.state !== GAME_STATE.VOTING) {
-	 	 return game;
-	 }
-	 if (!votedPlayers || votedPlayers.length !== game.numImposters) {
-	 	 return game; // Invalid vote
-	 }
-	 
-	 return updateGame(code, g => {
-	 	 const updated = { ...g };
-	 	 if (!updated.votes) {
-	 	 	 updated.votes = {};
-	 	 }
-	 	 if (!updated.voteCount) {
-	 	 	 updated.voteCount = 0;
-	 	 }
-	 	 
-	 	 // Only count if this player hasn't voted yet
-	 	 if (!updated.votes[playerNumber]) {
-	 	 	 updated.voteCount += 1;
-	 	 }
-	 	 
-	 	 updated.votes[playerNumber] = [...votedPlayers];
-	 	 
-	 	 // Check if all players have voted
-	 	 if (updated.voteCount >= updated.totalPlayers) {
-	 	 	 updated.state = GAME_STATE.VOTING_RESULTS;
-	 	 }
-	 	 
-	 	 return updated;
-	 });
+export async function submitVote(code, playerNumber, votedPlayers) {
+	try {
+		const game = await apiCall(`/game/${code}/submit-vote`, {
+			method: 'POST',
+			body: JSON.stringify({ playerNumber, votedPlayers }),
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to submit vote:', error);
+		return null;
+	}
 }
 
 // Get voting results - returns object with player numbers as keys and vote counts as values
-export function getVotingResults(code) {
-	 const game = getGame(code);
-	 if (!game || !game.votes) {
-	 	 return {};
-	 }
-	 
-	 const results = {};
-	 const allPlayerNumbers = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
-	 
-	 // Initialize all players with 0 votes
-	 allPlayerNumbers.forEach(num => {
-	 	 results[num] = 0;
-	 });
-	 
-	 // Count votes
-	 Object.values(game.votes).forEach(votedPlayers => {
-	 	 votedPlayers.forEach(playerNum => {
-	 	 	 if (results.hasOwnProperty(playerNum)) {
-	 	 	 	 results[playerNum] += 1;
-	 	 	 }
-	 	 });
-	 });
-	 
-	 return results;
+export async function getVotingResults(code) {
+	const game = await getGame(code);
+	if (!game || !game.votes) {
+		return {};
+	}
+	
+	const results = {};
+	const allPlayerNumbers = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
+	
+	// Initialize all players with 0 votes
+	allPlayerNumbers.forEach(num => {
+		results[num] = 0;
+	});
+	
+	// Count votes
+	Object.values(game.votes).forEach(votedPlayers => {
+		votedPlayers.forEach(playerNum => {
+			if (results.hasOwnProperty(playerNum)) {
+				results[playerNum] += 1;
+			}
+		});
+	});
+	
+	return results;
 }
 
 // Reveal imposters (host action) - sets flag so all players see the reveal
-export function revealImposters(code) {
-	 const game = getGame(code);
-	 if (!game) {
-	 	 return null;
-	 }
-	 
-	 return updateGame(code, g => ({
-	 	 ...g,
-	 	 impostersRevealed: true,
-	 }));
+export async function revealImposters(code) {
+	try {
+		const game = await apiCall(`/game/${code}/reveal-imposters`, {
+			method: 'POST',
+		});
+		return game;
+	} catch (error) {
+		console.error('Failed to reveal imposters:', error);
+		return null;
+	}
 }
 
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getGame, startGame, cancelGame, setPlayerNumberForGame, GAME_STATE } from '../utils/gameStore';
+import { getGame, startGame, endGame, setPlayerNumberForGame, GAME_STATE } from '../utils/gameStore';
 import './HostLobby.css';
 
 function HostLobby() {
 	const navigate = useNavigate();
 	const { code } = useParams();
-	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [game, setGame] = useState(null);
 	const [copied, setCopied] = useState(false);
 
 	// Store host player number (always 1)
@@ -16,12 +16,21 @@ function HostLobby() {
 		}
 	}, [code]);
 
-	// Poll localStorage to reflect joined players in this tab
+	// Initial load and poll for game updates
 	useEffect(() => {
 		if (!code) return;
 		
-		const interval = setInterval(() => {
-			const latest = getGame(code);
+		const loadGame = async () => {
+			const latest = await getGame(code);
+			if (latest) {
+				setGame(latest);
+			}
+		};
+		
+		loadGame();
+		
+		const interval = setInterval(async () => {
+			const latest = await getGame(code);
 			if (latest) {
 				setGame(latest);
 				
@@ -44,25 +53,34 @@ function HostLobby() {
 		navigate('/');
 	};
 
-	const handleStart = () => {
+	const handleStart = async () => {
 		if (!code) return;
 		
-		// Start the game: assign roles and select word/hint
-		const updatedGame = startGame(code);
-		if (updatedGame) {
-			// Navigate to role reveal screen
-			navigate(`/role-reveal/${code}/1`);
+		try {
+			// Start the game: assign roles and select word/hint
+			const updatedGame = await startGame(code);
+			if (updatedGame) {
+				// Navigate to role reveal screen
+				navigate(`/role-reveal/${code}/1`);
+			}
+		} catch (error) {
+			console.error('Failed to start game:', error);
 		}
 	};
 
-	const handleCancel = () => {
+	const handleCancel = async () => {
 		if (!code) return;
 		
-		// Cancel the game - this deletes it from storage
-		cancelGame(code);
-		
-		// Navigate back to home
-		navigate('/');
+		try {
+			// End the game - this will mark it as ended and all players will be redirected
+			await endGame(code);
+			// Navigate back to home
+			navigate('/');
+		} catch (error) {
+			console.error('Failed to cancel game:', error);
+			// Navigate anyway
+			navigate('/');
+		}
 	};
 
 	const displayCode = useMemo(() => (game?.code || code || '').toString().toUpperCase(), [game, code]);
