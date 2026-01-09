@@ -31,19 +31,21 @@ function JoinGame() {
     }
   };
 
-  const handleEnter = () => {
+  const handleEnter = async () => {
     if (!gameCode.trim()) {
       return;
     }
 
     const normalized = gameCode.trim().toUpperCase();
-    const game = getGame(normalized);
+    
+    // Check if game exists
+    const game = await getGame(normalized);
     if (!game) {
       setStatus('error-invalid');
       return;
     }
 
-    const result = tryJoinGame(normalized);
+    const result = await tryJoinGame(normalized);
     if (!result.ok) {
       if (result.reason === 'full') {
         setStatus('error-full');
@@ -64,7 +66,7 @@ function JoinGame() {
     setStatus('success');
     
     // Check if game has already started (get fresh game state after joining)
-    const updatedGame = getGame(normalized);
+    const updatedGame = await getGame(normalized);
     if (updatedGame && (updatedGame.state === GAME_STATE.ROLE_REVEAL || updatedGame.state === GAME_STATE.ALL_READY)) {
       navigate(`/role-reveal/${normalized}/${assignedPlayerNumber}`);
     } else if (updatedGame && updatedGame.state === GAME_STATE.START_PLAYER_SELECTED) {
@@ -81,8 +83,8 @@ function JoinGame() {
 	// Poll for game state when successfully joined
 	useEffect(() => {
 		if (status === 'success' && gameCode && playerNumber) {
-			const interval = setInterval(() => {
-				const game = getGame(gameCode.toUpperCase());
+			const interval = setInterval(async () => {
+				const game = await getGame(gameCode.toUpperCase());
 				if (!game) {
 					// Game was cancelled - navigate back to home
 					navigate('/');

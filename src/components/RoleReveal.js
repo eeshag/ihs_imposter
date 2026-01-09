@@ -6,17 +6,26 @@ import './RoleReveal.css';
 function RoleReveal() {
 	const navigate = useNavigate();
 	const { code, playerNumber } = useParams();
-	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [game, setGame] = useState(null);
 	const [hasPressedOK, setHasPressedOK] = useState(false);
 	
 	const parsedPlayerNumber = playerNumber ? parseInt(playerNumber, 10) : null;
 
-	// Poll for game state updates
+	// Initial load and poll for game state updates
 	useEffect(() => {
 		if (!code) return;
 		
-		const interval = setInterval(() => {
-			const latest = getGame(code);
+		const loadGame = async () => {
+			const latest = await getGame(code);
+			if (latest) {
+				setGame(latest);
+			}
+		};
+		
+		loadGame();
+		
+		const interval = setInterval(async () => {
+			const latest = await getGame(code);
 			if (latest) {
 				setGame(latest);
 				
@@ -57,28 +66,39 @@ function RoleReveal() {
 		);
 	}
 
-	const playerRole = getPlayerRole(code, parsedPlayerNumber);
+	const [playerRole, setPlayerRole] = useState(null);
 	const isImposter = playerRole === PLAYER_ROLE.IMPOSTER;
 	const isHost = parsedPlayerNumber === 1;
 
-	const handleOK = () => {
+	// Load player role
+	useEffect(() => {
+		const loadRole = async () => {
+			if (code && parsedPlayerNumber) {
+				const role = await getPlayerRole(code, parsedPlayerNumber);
+				setPlayerRole(role);
+			}
+		};
+		loadRole();
+	}, [code, parsedPlayerNumber]);
+
+	const handleOK = async () => {
 		if (hasPressedOK) return; // Prevent double-clicking
 		
-		markPlayerReady(code, parsedPlayerNumber);
+		await markPlayerReady(code, parsedPlayerNumber);
 		setHasPressedOK(true);
 		
 		// Check if all players are ready, then select starting player
-		setTimeout(() => {
-			const updatedGame = getGame(code);
+		setTimeout(async () => {
+			const updatedGame = await getGame(code);
 			if (updatedGame && updatedGame.state === GAME_STATE.ALL_READY) {
-				selectStartingPlayer(code);
+				await selectStartingPlayer(code);
 			}
 		}, 100);
 	};
 
-	const handleEndGame = () => {
+	const handleEndGame = async () => {
 		if (code) {
-			endGame(code);
+			await endGame(code);
 			navigate('/');
 		}
 	};

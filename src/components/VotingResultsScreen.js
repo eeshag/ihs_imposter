@@ -6,17 +6,27 @@ import './VotingResultsScreen.css';
 function VotingResultsScreen() {
 	const navigate = useNavigate();
 	const { code, playerNumber } = useParams();
-	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [game, setGame] = useState(null);
 	const [results, setResults] = useState({});
+	const [actualImposters, setActualImposters] = useState([]);
 	const parsedPlayerNumber = playerNumber ? parseInt(playerNumber, 10) : null;
 	const isHost = parsedPlayerNumber === 1;
 
-	// Poll for game state updates
+	// Initial load and poll for game state updates
 	useEffect(() => {
 		if (!code) return;
 		
-		const interval = setInterval(() => {
-			const latest = getGame(code);
+		const loadGame = async () => {
+			const latest = await getGame(code);
+			if (latest) {
+				setGame(latest);
+			}
+		};
+		
+		loadGame();
+		
+		const interval = setInterval(async () => {
+			const latest = await getGame(code);
 			if (latest) {
 				setGame(latest);
 				
@@ -28,7 +38,7 @@ function VotingResultsScreen() {
 				
 				// Update results
 				if (latest.state === GAME_STATE.VOTING_RESULTS) {
-					const votingResults = getVotingResults(code);
+					const votingResults = await getVotingResults(code);
 					setResults(votingResults);
 				}
 			} else {
@@ -47,18 +57,35 @@ function VotingResultsScreen() {
 	const maxVoteCount = Math.max(...Object.values(results), 0);
 	const topVotedPlayers = allPlayerNumbers.filter(num => results[num] === maxVoteCount && maxVoteCount > 0);
 
-	const handleRevealImposters = () => {
+	const handleRevealImposters = async () => {
 		if (code) {
-			revealImposters(code);
+			await revealImposters(code);
 		}
 	};
 
-	const handleEndGame = () => {
+	const handleEndGame = async () => {
 		if (code) {
-			endGame(code);
+			await endGame(code);
 			navigate('/');
 		}
 	};
+
+	// Load actual imposters
+	useEffect(() => {
+		const loadImposters = async () => {
+			if (!code || !game || !game.totalPlayers) return;
+			const imposters = [];
+			const playerNums = Array.from({ length: game.totalPlayers }, (_, i) => i + 1);
+			for (const num of playerNums) {
+				const role = await getPlayerRole(code, num);
+				if (role === PLAYER_ROLE.IMPOSTER) {
+					imposters.push(num);
+				}
+			}
+			setActualImposters(imposters);
+		};
+		loadImposters();
+	}, [code, game]);
 
 	if (!game || !parsedPlayerNumber) {
 		return (
@@ -69,15 +96,6 @@ function VotingResultsScreen() {
 			</div>
 		);
 	}
-
-	// Get actual imposters
-	const actualImposters = [];
-	allPlayerNumbers.forEach(num => {
-		const role = getPlayerRole(code, num);
-		if (role === PLAYER_ROLE.IMPOSTER) {
-			actualImposters.push(num);
-		}
-	});
 
 	return (
 		<div className="voting-results-page">

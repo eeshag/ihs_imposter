@@ -6,15 +6,24 @@ import './StartingPlayerScreen.css';
 function StartingPlayerScreen() {
 	const navigate = useNavigate();
 	const { code, playerNumber } = useParams();
-	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [game, setGame] = useState(null);
 	const parsedPlayerNumber = playerNumber ? parseInt(playerNumber, 10) : null;
 
-	// Poll for game state updates
+	// Initial load and poll for game state updates
 	useEffect(() => {
 		if (!code) return;
 		
-		const interval = setInterval(() => {
-			const latest = getGame(code);
+		const loadGame = async () => {
+			const latest = await getGame(code);
+			if (latest) {
+				setGame(latest);
+			}
+		};
+		
+		loadGame();
+		
+		const interval = setInterval(async () => {
+			const latest = await getGame(code);
 			if (latest) {
 				setGame(latest);
 				
@@ -51,23 +60,23 @@ function StartingPlayerScreen() {
 	const currentSelectionIndex = selectedPlayers.length;
 	const allPlayersSelected = selectedPlayers.length >= totalPlayers;
 
-	const handleNext = () => {
+	const handleNext = async () => {
 		if (code && !allPlayersSelected) {
-			selectNextPlayer(code);
+			await selectNextPlayer(code);
 		}
 	};
 
-	const handleEndGame = () => {
+	const handleEndGame = async () => {
 		if (code) {
-			endGame(code);
+			await endGame(code);
 			navigate('/');
 		}
 	};
 
-	const handleVote = () => {
+	const handleVote = async () => {
 		if (code && allPlayersSelected) {
 			// Transition game to voting state (idempotent - safe to call multiple times)
-			startVoting(code);
+			await startVoting(code);
 			// Navigate only this individual player to voting screen
 			navigate(`/voting/${code}/${parsedPlayerNumber}`);
 		}

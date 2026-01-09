@@ -6,18 +6,27 @@ import './VotingScreen.css';
 function VotingScreen() {
 	const navigate = useNavigate();
 	const { code, playerNumber } = useParams();
-	const [game, setGame] = useState(() => (code ? getGame(code) : null));
+	const [game, setGame] = useState(null);
 	const [selectedPlayers, setSelectedPlayers] = useState([]);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const parsedPlayerNumber = playerNumber ? parseInt(playerNumber, 10) : null;
 	const isHost = parsedPlayerNumber === 1;
 
-	// Poll for game state updates
+	// Initial load and poll for game state updates
 	useEffect(() => {
 		if (!code) return;
 		
-		const interval = setInterval(() => {
-			const latest = getGame(code);
+		const loadGame = async () => {
+			const latest = await getGame(code);
+			if (latest) {
+				setGame(latest);
+			}
+		};
+		
+		loadGame();
+		
+		const interval = setInterval(async () => {
+			const latest = await getGame(code);
 			if (latest) {
 				setGame(latest);
 				
@@ -82,17 +91,17 @@ function VotingScreen() {
 		});
 	};
 
-	const handleSubmitVote = () => {
+	const handleSubmitVote = async () => {
 		if (hasSubmitted) return;
 		if (selectedPlayers.length !== numImposters) return;
 		
-		submitVote(code, parsedPlayerNumber, selectedPlayers);
+		await submitVote(code, parsedPlayerNumber, selectedPlayers);
 		setHasSubmitted(true);
 	};
 
-	const handleEndGame = () => {
+	const handleEndGame = async () => {
 		if (code) {
-			endGame(code);
+			await endGame(code);
 			navigate('/');
 		}
 	};
