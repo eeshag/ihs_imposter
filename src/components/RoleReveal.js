@@ -8,6 +8,7 @@ function RoleReveal() {
 	const { code, playerNumber } = useParams();
 	const [game, setGame] = useState(null);
 	const [hasPressedOK, setHasPressedOK] = useState(false);
+	const [playerRole, setPlayerRole] = useState(null);
 	
 	const parsedPlayerNumber = playerNumber ? parseInt(playerNumber, 10) : null;
 
@@ -56,20 +57,6 @@ function RoleReveal() {
 		}
 	}, [game, parsedPlayerNumber]);
 
-	if (!game || !parsedPlayerNumber) {
-		return (
-			<div className="role-reveal-page">
-				<div className="role-reveal-card">
-					<div className="error-message">Game not found or invalid player number.</div>
-				</div>
-			</div>
-		);
-	}
-
-	const [playerRole, setPlayerRole] = useState(null);
-	const isImposter = playerRole === PLAYER_ROLE.IMPOSTER;
-	const isHost = parsedPlayerNumber === 1;
-
 	// Load player role
 	useEffect(() => {
 		const loadRole = async () => {
@@ -80,6 +67,19 @@ function RoleReveal() {
 		};
 		loadRole();
 	}, [code, parsedPlayerNumber]);
+
+	if (!game || !parsedPlayerNumber) {
+		return (
+			<div className="role-reveal-page">
+				<div className="role-reveal-card">
+					<div className="error-message">Game not found or invalid player number.</div>
+				</div>
+			</div>
+		);
+	}
+
+	const isImposter = playerRole === PLAYER_ROLE.IMPOSTER;
+	const isHost = parsedPlayerNumber === 1;
 
 	const handleOK = async () => {
 		if (hasPressedOK) return; // Prevent double-clicking
